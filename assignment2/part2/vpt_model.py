@@ -73,23 +73,10 @@ class CustomCLIP(nn.Module):
         print("List of prompts:")
         pprint(prompts)
 
-        #######################
-        # PUT YOUR CODE HERE  #
-        #######################
-
-        # TODO: Write code to compute text features.
-        # Hint: You can use the code from clipzs.py here!
-
-        # Instructions:
-        # - Given a list of prompts, compute the text features for each prompt.
-        # - Return a tensor of shape (num_prompts, 512).
-
-        # remove this line once you implement the function
-        raise NotImplementedError("Write the code to compute text features.")
-
-        #######################
-        # END OF YOUR CODE    #
-        #######################
+        tokens = clip.tokenize(prompts).to(args.device)
+        with torch.no_grad():
+            text_features = clip_model.encode_text(tokens)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
 
         self.text_features = text_features
         self.clip_model = clip_model
@@ -120,7 +107,13 @@ class CustomCLIP(nn.Module):
         # - Return logits of shape (num_classes,).
 
         # remove this line once you implement the function
-        raise NotImplementedError("Implement the model_inference function.")
+        prompt_image = self.prompt_learner(image)
+        image_features = self.clip_model.encode_image(prompt_image)
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        similarity = self.logit_scale * \
+            (image_features @ self.text_features.T)
+
+        return similarity
 
         #######################
         # END OF YOUR CODE    #

@@ -66,8 +66,10 @@ class Learner:
         # TODO: Turn off gradients in both the image and the text encoder
         # Note: You need to keep the visual prompt's parameters trainable
         # Hint: Check for "prompt_learner" in the parameters' names
+        for name, param in self.vpt.named_parameters():
+            if 'prompt_learner' not in name:
+                param.requires_grad = False
 
-        raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
@@ -77,7 +79,6 @@ class Learner:
         for name, param in self.vpt.named_parameters():
             if param.requires_grad:
                 enabled.add(name)
-        print(f"Parameters to be updated:")
         pprint(f"Parameters to be updated: {enabled}")
 
         # Print number of parameters
@@ -219,8 +220,14 @@ class Learner:
             # - Compute the loss (using self.criterion)
             # - Perform a backward pass
             # - Update the parameters
+            images = images.to(self.device)
+            target = target.to(self.device)
+            self.optimizer.zero_grad()
+            output = self.vpt(images)
+            loss = self.criterion(output, target)
+            loss.backward()
+            self.optimizer.step()
 
-            raise NotImplementedError
             #######################
             # END OF YOUR CODE    #
             #######################
@@ -285,7 +292,10 @@ class Learner:
                 # - Forward pass (using self.vpt)
                 # - Compute the loss (using self.criterion)
 
-                raise NotImplementedError
+                images = images.to(self.device)
+                target = target.to(self.device)
+                output = self.vpt(images)
+                loss = self.criterion(output, target)
                 #######################
                 # END OF YOUR CODE    #
                 #######################
