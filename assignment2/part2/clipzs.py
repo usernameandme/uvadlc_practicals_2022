@@ -151,7 +151,7 @@ class ZeroshotCLIP(nn.Module):
         Note: Do not forget to set torch.no_grad() while computing the text features.
         """
         with torch.no_grad():
-            tokens = clip.tokenize(prompts)
+            tokens = clip.tokenize(prompts).to(device)
             features = clip_model.encode_text(tokens)
             features /= features.norm(dim=-1, keepdim=True)
 
@@ -334,6 +334,8 @@ def main():
 
     # you can remove the following line once you have implemented the inference loop
     for images, labels in tqdm(loader):
+        images = images.to(device)
+        labels = labels.to(device)
         logits = clipzs.model_inference(images)
         preds = logits.argmax(dim=-1)
         acc = (preds == labels).float().mean()

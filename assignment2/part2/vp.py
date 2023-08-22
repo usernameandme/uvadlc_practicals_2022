@@ -34,6 +34,7 @@ class PadPrompter(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
+        self.device = args.device
         self.base_size = image_size - pad_size*2
 
         # TODO: Define the padding as variables self.pad_left, self.pad_right, self.pad_up, self.pad_down
@@ -62,7 +63,7 @@ class PadPrompter(nn.Module):
         # - First define the prompt. Then add it to the batch of images.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
-        base = torch.zeros(1, 3, self.base_size, self.base_size)
+        base = torch.zeros(1, 3, self.base_size, self.base_size).to(self.device)
         prompt = torch.cat([self.pad_left, base, self.pad_right], dim=3)
         prompt = torch.cat([self.pad_up, prompt, self.pad_down], dim=2)
         prompt = torch.cat(x.size(0) * [prompt])
@@ -99,6 +100,7 @@ class FixedPatchPrompter(nn.Module):
         #     (3 for the RGB channels)
         # - You can define variable parameters using torch.nn.Parameter
         # - You can initialize the patch randomly in N(0, 1) using torch.randn
+        self.device = args.device
         self.isize = args.image_size
         self.psize = args.prompt_size
         self.patch = nn.Parameter(torch.randn(1, 3, self.psize, self.psize))
@@ -117,7 +119,7 @@ class FixedPatchPrompter(nn.Module):
         # - First define the prompt. Then add it to the batch of images.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
-        prompt = torch.zeros(1, 3, self.isize, self.isize)
+        prompt = torch.zeros(1, 3, self.isize, self.isize).to(self.device)
         prompt[:, :, :self.psize, :self.psize] = self.patch
         return x + prompt
 
@@ -138,6 +140,7 @@ class RandomPatchPrompter(nn.Module):
         assert isinstance(args.image_size, int), "image_size must be integer"
         assert isinstance(args.prompt_size, int), "prompt_size must be integer"
 
+        self.device = args.device
         self.isize = args.image_size
         self.psize = args.prompt_size
         self.patch = nn.Parameter(torch.randn(1, 3, self.psize, self.psize))
@@ -146,6 +149,6 @@ class RandomPatchPrompter(nn.Module):
         x_ = np.random.choice(self.isize - self.psize)
         y_ = np.random.choice(self.isize - self.psize)
 
-        prompt = torch.zeros(1, 3, self.isize, self.isize)
+        prompt = torch.zeros(1, 3, self.isize, self.isize).to(self.device)
         prompt[:, :, x_:x_ + self.psize, y_:y_ + self.psize] = self.patch
         return x + prompt

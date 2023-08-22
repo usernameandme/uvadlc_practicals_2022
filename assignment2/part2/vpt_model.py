@@ -109,7 +109,7 @@ class CustomCLIP(nn.Module):
         # remove this line once you implement the function
         prompt_image = self.prompt_learner(image)
         image_features = self.clip_model.encode_image(prompt_image)
-        image_features /= image_features.norm(dim=-1, keepdim=True)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         similarity = self.logit_scale * \
             (image_features @ self.text_features.T)
 
