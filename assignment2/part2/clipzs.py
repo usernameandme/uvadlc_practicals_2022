@@ -342,7 +342,7 @@ def main():
         top1.update(acc, images.shape[0])
 
     print(
-        f"Zero-shot CLIP top-1 accuracy on {args.dataset}/{args.split}: {top1.val*100}"
+        f"Zero-shot CLIP top-1 accuracy on {args.dataset}/{args.split}: {top1.avg*100}"
     )
 
 
